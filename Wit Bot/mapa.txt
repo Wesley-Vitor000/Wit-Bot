@@ -1,0 +1,44 @@
+"key": {
+  "remoteJid": "120363425351101739@g.us",
+  "fromMe": true,
+  "id": "...",
+  "participant": "209147744284873@lid"
+}
+
+💡 remoteJid
+
+👉 Identifica de onde veio a mensagem
+
+termina com @g.us → grupo
+termina com @s.whatsapp.net → privado
+
+"fromMe": true
+true → você enviou
+false → outra pessoa enviou
+
+💡 id
+
+👉 ID único da mensagem (tipo um CPF da mensagem)
+
+"pushName": "Wesley" 👉 Nome do contato
+"messageTimestamp": 1777506850 👉 Horário da mensagem (timestamp)
+
+"message": {
+  "conversation": "Oi" 👉 AQUI ESTÁ O TEXTO REAL
+}
+
+OBS:
+
+💡 Outros tipos possíveis
+
+Nem sempre vem como conversation.
+
+Pode vir como:
+
+"extendedTextMessage"
+"imageMessage"
+"videoMessage"
+"audioMessage"
+
+"senderKeyDistributionMessage"
+"messageContextInfo" 👉 Isso é criptografia interna do WhatsApp

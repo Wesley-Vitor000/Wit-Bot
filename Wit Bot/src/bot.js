@@ -1,0 +1,151 @@
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion
+} = require('@whiskeysockets/baileys')
+
+const qrcode = require('qrcode-terminal')
+const pino = require('pino')
+
+const modoYoutube = require('./modos/youtube/modoYoutube')
+const modoMusica = require('./modos/musica/modoMusica')
+const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
+
+
+// Modo Atual do Bot
+const modoUsuarios = {} // Isso aqui é para armazenar o modo atual de cada usuário, usando o número do contato como chave e o modo como valor. Exemplo: { '5511999999999': 'youtube' }
+
+
+// ================================
+// FUNÇÕES DO BOT
+// ================================
+
+async function mostrarMenu(sock, remoteJid, nome) {
+    await sock.sendMessage(remoteJid, {
+        image: { url: 'assets/menu/menu_inicial_img.png' },
+        caption: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
+    }) // Exemplo de resposta para o comando /menu
+}
+
+
+
+
+// ================================================================
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth')
+
+    const { version } = await fetchLatestBaileysVersion() // Serve para garantir que estamos usando a versão mais recente do WhatsApp Web
+    console.log('Versão do WhatsApp Web:', version)
+
+    const sock = makeWASocket({ // Serve para criar a conexão com o WhatsApp
+        auth: state,
+        logger: pino({ level: 'silent' }),
+        browser: ['Meu Bot', 'Chrome', '1.0.0'],
+        version: version,
+    })
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, qr, lastDisconnect } = update
+
+        if (qr) {
+            console.log('\n📲 Escaneia esse QR Code no WhatsApp:\n')
+            qrcode.generate(qr, { small: true })
+        }
+
+        if (connection === 'open') {
+            console.log('🔥 Bot conectado com sucesso!')
+        }
+
+        if (connection === 'close') {
+            const statusCode = lastDisconnect?.error?.output?.statusCode
+
+            console.log('⚠️ Conexão fechada. Código:', statusCode)
+
+            if (statusCode !== DisconnectReason.loggedOut) {
+                console.log('🔁 Tentando reconectar...')
+                startBot()
+            } else {
+                console.log('❌ Sessão desconectada. Apague a pasta auth e escaneie de novo.')
+            }
+        }
+    }) // ← FECHAMENTO CORRETO DO connection.update
+
+    sock.ev.on('creds.update', saveCreds)
+
+    sock.ev.on('messages.upsert', async (msg) => {
+        const message = msg.messages[0] // Isso aqui é para pegar a primeira mensagem do array de mensagens recebidas, já que o evento pode receber várias mensagens ao mesmo tempo.
+
+        if (!message.message) return
+
+        const remoteJid = message.key.remoteJid // Isso aqui é para pegar o ID do contato ou do grupo que enviou a mensagem, para que possamos responder a ele depois
+
+        if (message.key.fromMe) {
+            console.log('⚠️ Mensagem enviada por mim mesmo, ignorando resposta automática.')
+            return
+        }
+
+        if (remoteJid.endsWith('@g.us')) {
+            console.log('⚠️ Mensagem recebida de um grupo, ignorando resposta automática.')
+            return
+        }
+
+        const numeroReal = message.key.remoteJidAlt || message.key.remoteJid // Isso aqui é para pegar o número real do contato, caso o WhatsApp tenha adicionado um sufixo para diferenciar contatos com o mesmo número (como em casos de contas comerciais)
+
+        console.log(JSON.stringify(message, null, 2)) // Serve para mostrar a estrutura completa da mensagem recebida, útil para desenvolvimento
+
+        const nome = message.pushName || 'Desconhecido' // Isso aqui é para pegar o nome do contato que enviou a mensagem, ou usar "Desconecido" se não tiver um nome disponível
+
+        const text =
+            message.message.conversation || // Então, aqui ele vai tentar pegar o texto da mensagem, seja ela uma mensagem simples ou uma mensagem estendida (como mensagens de grupo ou mensagens com mídia)
+            message.message.extendedTextMessage?.text || // E aqui ele tenta pegar o texto de mensagens estendidas, como mensagens de grupo ou mensagens com mídia
+            '' // Se não conseguir pegar o texto, ele vai retornar uma string vazia para evitar erros
+
+        const textNormalizado = text.toLowerCase().trim()
+
+        console.log('📩 Mensagem recebida:', text)
+
+        if (textNormalizado === '/menu') {
+            await mostrarMenu(sock, remoteJid, nome)
+            return
+        }
+
+        if (textNormalizado === '1') {
+            await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (textNormalizado === '2') {
+            await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (textNormalizado === '3') {
+            await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
+            return
+        }
+
+        // Aqui ele vai verificar se o usuário está no Modo Youtube, e se estiver, ele vai chamar a função do Modo Youtube para processar a mensagem de acordo com as regras desse modo. Isso é útil para manter o contexto da conversa e oferecer uma experiência mais personalizada para o usuário.
+        if (modoUsuarios[remoteJid] === 'youtube') {
+            await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (modoUsuarios[remoteJid] === 'musica') {
+            await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (modoUsuarios[remoteJid] === 'figurinha') {
+            await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
+            return
+        }
+
+        await sock.sendMessage(remoteJid, {
+            image: { url: 'assets/geral/apresentacao_img.jpeg' },
+            caption: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
+        }) // Exemplo de como enviar uma mensagem para um contato específico (substitua remoteJid pelo número do contato ou ID do grupo)
+    })
+}
+
+startBot()

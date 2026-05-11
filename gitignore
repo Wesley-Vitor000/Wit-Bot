@@ -1,0 +1,13 @@
+node_modules/
+auth/
+*.mp4
+*.mp3
+*.webp
+*.jpg
+*.jpeg
+*.png
+
+src/modos/youtube/videos-baixados/
+src/modos/musica/musicas-baixadas/
+src/modos/figurinhas/midias-recebidas/
+src/modos/figurinhas/figurinhas-prontas/
