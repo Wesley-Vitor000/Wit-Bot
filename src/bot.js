@@ -47,29 +47,20 @@ async function startBot() {
     })
 
     const numeroBot = process.env.NUMERO_BOT  // Isso aqui é para pegar o número do bot a partir de uma variável de ambiente, para que possamos usar o mesmo código em diferentes bots sem precisar alterar o código-fonte. O número do bot deve estar registrado no WhatsApp para que isso funcione.
- 
+
     if (!numeroBot) {
         console.log('❌ Por favor, defina a variável de ambiente NUMERO_BOT com o número do bot (incluindo o código do país, sem espaços ou símbolos). Exemplo: 5511999999999')
         process.exit(1) // Isso aqui é para encerrar o processo do bot se a variável de ambiente não estiver definida, para evitar erros posteriores.
     }
 
-    if (!sock.authState.creds.registered) { // Isso aqui é para verificar se o número do bot está registrado, ou seja, se já foi escaneado o QR Code e autenticado com sucesso. Se não estiver registrado, ele vai mostrar o QR Code para o usuário escanear e autenticar.
-        const codigo = await sock.requestPairingCode(numeroBot) // Isso aqui é para solicitar o código de pareamento do WhatsApp, que é necessário para gerar o QR Code. O número do bot deve estar registrado no WhatsApp para que isso funcione.
-
-        console.log('\n=================================')
-        console.log('🔐 CÓDIGO DE PAREAMENTO DO WHATSAPP:')
-        console.log(codigo)
-        console.log('=================================\n')
-
-    }
 
     sock.ev.on('connection.update', (update) => {
         const { connection, qr, lastDisconnect } = update //
-       /*
-        if (qr) {
-            console.log('\n📲 Escaneia esse QR Code no WhatsApp:\n')
-            qrcode.generate(qr, { small: true }) // False aqui
-        }*/
+        /*
+         if (qr) {
+             console.log('\n📲 Escaneia esse QR Code no WhatsApp:\n')
+             qrcode.generate(qr, { small: true }) // False aqui
+         }*/
 
         if (connection === 'open') {
             console.log('🔥 Bot conectado com sucesso!')
@@ -88,6 +79,18 @@ async function startBot() {
             }
         }
     }) // ← FECHAMENTO CORRETO DO connection.update
+
+
+    if (!sock.authState.creds.registered) { // Isso aqui é para verificar se o número do bot está registrado, ou seja, se já foi escaneado o QR Code e autenticado com sucesso. Se não estiver registrado, ele vai mostrar o QR Code para o usuário escanear e autenticar.
+        const codigo = await sock.requestPairingCode(numeroBot) // Isso aqui é para solicitar o código de pareamento do WhatsApp, que é necessário para gerar o QR Code. O número do bot deve estar registrado no WhatsApp para que isso funcione.
+
+        console.log('\n=================================')
+        console.log('🔐 CÓDIGO DE PAREAMENTO DO WHATSAPP:')
+        console.log(codigo)
+        console.log('=================================\n')
+
+    }
+
 
     sock.ev.on('creds.update', saveCreds)
 
