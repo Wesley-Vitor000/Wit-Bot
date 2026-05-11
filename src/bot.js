@@ -41,17 +41,30 @@ async function startBot() {
     const sock = makeWASocket({ // Serve para criar a conexão com o WhatsApp
         auth: state,
         logger: pino({ level: 'silent' }),
-        browser: ['Meu Bot', 'Chrome', '1.0.0'],
+        browser: ['Wit Bot', 'Chrome', '1.0.0'],
         version: version,
+        printQRInTerminal: false // False aqui para não mostrar o QR Code no terminal, já que vamos usar o qrcode-terminal para isso
     })
 
-    sock.ev.on('connection.update', (update) => {
-        const { connection, qr, lastDisconnect } = update
+    const numeroBot = '5583986454899' // Substitua pelo número do seu bot, incluindo o código do país (exemplo: 5511999999999 para um número brasileiro)
 
+    if (!sock.authState.creds.registered) { // Isso aqui é para verificar se o número do bot está registrado, ou seja, se já foi escaneado o QR Code e autenticado com sucesso. Se não estiver registrado, ele vai mostrar o QR Code para o usuário escanear e autenticar.
+        const codigo = await sock.requestPairingCode(numeroBot) // Isso aqui é para solicitar o código de pareamento do WhatsApp, que é necessário para gerar o QR Code. O número do bot deve estar registrado no WhatsApp para que isso funcione.
+
+        console.log('\n=================================')
+        console.log('🔐 CÓDIGO DE PAREAMENTO DO WHATSAPP:')
+        console.log(codigo)
+        console.log('=================================\n')
+
+    }
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, qr, lastDisconnect } = update //
+       /*
         if (qr) {
             console.log('\n📲 Escaneia esse QR Code no WhatsApp:\n')
-            qrcode.generate(qr, { small: true })
-        }
+            qrcode.generate(qr, { small: true }) // False aqui
+        }*/
 
         if (connection === 'open') {
             console.log('🔥 Bot conectado com sucesso!')
