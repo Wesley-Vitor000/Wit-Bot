@@ -4,8 +4,8 @@ const {
     DisconnectReason,
     fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys')
-
-const QRCode = require('qrcode')
+ // const QRCode = require('qrcode')
+ const qrcode = require('qrcode-terminal')
 const pino = require('pino')
 
 const modoYoutube = require('./modos/youtube/modoYoutube')
@@ -45,20 +45,21 @@ async function startBot() {
         version: version,
         printQRInTerminal: false // False aqui para não mostrar o QR Code no terminal, já que vamos usar o qrcode-terminal para isso
     })
-
+/*
     const numeroBot = process.env.NUMERO_BOT  // Isso aqui é para pegar o número do bot a partir de uma variável de ambiente, para que possamos usar o mesmo código em diferentes bots sem precisar alterar o código-fonte. O número do bot deve estar registrado no WhatsApp para que isso funcione.
 
     if (!numeroBot) {
         console.log('❌ Por favor, defina a variável de ambiente NUMERO_BOT com o número do bot (incluindo o código do país, sem espaços ou símbolos). Exemplo: 5511999999999')
         process.exit(1) // Isso aqui é para encerrar o processo do bot se a variável de ambiente não estiver definida, para evitar erros posteriores.
     }
-
+*/
 
     sock.ev.on('connection.update', async(update) => {
         const { connection, qr, lastDisconnect } = update //
         
          if (qr) {
-             await QRCode.toFile('qr-wit-bot.png', qr) // Isso aqui é para gerar um arquivo de imagem com o QR Code, para que o usuário possa escanear com o WhatsApp e autenticar o bot. O arquivo será salvo na raiz do projeto com o nome "qr-wit-bot.png".
+             await qrcode.generate(qr, { small: true }) // Isso aqui é para gerar um QR Code no terminal, para que o usuário possa escanear com o WhatsApp e autenticar o bot.
+             console.log('📸 QR Code gerado! Escaneie o código no terminal com o WhatsApp para autenticar o bot.')
              console.log('📸 QR Code gerado! Escaneie o arquivo qr-wit-bot.png com o WhatsApp para autenticar o bot.')
          }
 
