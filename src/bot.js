@@ -82,7 +82,7 @@ async function startBot() {
 
 
     if (!sock.authState.creds.registered) { // Isso aqui é para verificar se o número do bot está registrado, ou seja, se já foi escaneado o QR Code e autenticado com sucesso. Se não estiver registrado, ele vai mostrar o QR Code para o usuário escanear e autenticar.
-        await new Promise(resolve => setTimeout(resolve, 4000)) // Isso aqui é para dar um pequeno delay antes de solicitar o código de pareamento, para garantir que a conexão com o WhatsApp esteja estabilizada e evitar erros de sincronização.
+        await new Promise(resolve => setTimeout(resolve, 10000)) // Isso aqui é para dar um pequeno delay antes de solicitar o código de pareamento, para garantir que a conexão com o WhatsApp esteja estabilizada e evitar erros de sincronização.
         
         const codigo = await sock.requestPairingCode(numeroBot) // Isso aqui é para solicitar o código de pareamento do WhatsApp, que é necessário para gerar o QR Code. O número do bot deve estar registrado no WhatsApp para que isso funcione.
 
