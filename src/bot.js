@@ -54,7 +54,7 @@ async function startBot() {
     }
 
 
-    sock.ev.on('connection.update', (update) => {
+    sock.ev.on('connection.update', async(update) => {
         const { connection, qr, lastDisconnect } = update //
         
          if (qr) {
