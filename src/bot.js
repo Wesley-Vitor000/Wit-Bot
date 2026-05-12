@@ -5,7 +5,7 @@ const {
     fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys')
 
-const qrcode = require('qrcode-terminal')
+const QRCode = require('qrcode')
 const pino = require('pino')
 
 const modoYoutube = require('./modos/youtube/modoYoutube')
@@ -56,11 +56,11 @@ async function startBot() {
 
     sock.ev.on('connection.update', (update) => {
         const { connection, qr, lastDisconnect } = update //
-        /*
+        
          if (qr) {
-             console.log('\n📲 Escaneia esse QR Code no WhatsApp:\n')
-             qrcode.generate(qr, { small: true }) // False aqui
-         }*/
+             await QRCode.toFile('qr-wit-bot.png', qr) // Isso aqui é para gerar um arquivo de imagem com o QR Code, para que o usuário possa escanear com o WhatsApp e autenticar o bot. O arquivo será salvo na raiz do projeto com o nome "qr-wit-bot.png".
+             console.log('📸 QR Code gerado! Escaneie o arquivo qr-wit-bot.png com o WhatsApp para autenticar o bot.')
+         }
 
         if (connection === 'open') {
             console.log('🔥 Bot conectado com sucesso!')
