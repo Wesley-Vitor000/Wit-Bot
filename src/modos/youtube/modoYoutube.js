@@ -5,11 +5,12 @@ const path = require('path')
 const limparLinkYoutube = require('../../utils/limparLinkYoutube')
 const pegarInfoYoutube = require('../../utils/pegarInfoYoutube')
 const pesquisarYoutube = require('../../utils/pesquisarYoutube')
+const caminhoCookies = path.join(__dirname, '..','..','..','cookies', 'cookies.txt')
 
 function baixarVideoYoutube(link, saidaVideo) {
     return new Promise((resolve, reject) => {
         
-        const comando = `python3 -m yt_dlp --extractor-args "youtube:player_client=tv_embedded" --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "${saidaVideo}" "${link}"`
+        const comando = `python3 -m yt_dlp  --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=tv_embedded" --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "${saidaVideo}" "${link}"`
         
         exec(comando, (error, stdout, stderr) => {
             if (error) {
