@@ -411,7 +411,12 @@ setTimeout(() => {
             message.message.conversation ||
             message.message.extendedTextMessage?.text ||
             ''
-
+        
+        if (!text.trim() && !message.message.imageMessage && !message.message.videoMessage) {
+    console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
+    return
+}
+        
         const textNormalizado = text.toLowerCase().trim()
 
         console.log('📩 Mensagem recebida:', text)
