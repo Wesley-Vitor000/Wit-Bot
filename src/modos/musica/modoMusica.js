@@ -16,15 +16,8 @@ function baixarMusicaYoutube(link, saidaMusica) {
             fs.writeFileSync(caminhoCookies, process.env.YOUTUBE_COOKIES)
         }
 
-        const comando = `python3 -m yt_dlp \
---cookies "${caminhoCookies}" \
---extractor-args "youtube:player_client=tv_embedded,default;player_skip=webpage,configs" \
---js-runtime node \
--f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" \
---merge-output-format mp4 \
---force-overwrites \
--o "${saidaMusica}" \
-"${link}"`
+        const comando = `python3 -m yt_dlp --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=android_music,android" --no-playlist --js-runtime node -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5 --force-overwrites -o "${saidaMusica}" "${link}"`
+
         exec(comando, (error, stdout, stderr) => {
             if (error) {
                 console.error('Erro ao baixar música:', error)
