@@ -22,6 +22,7 @@ const pino = require('pino')
 const modoYoutube = require('./modos/youtube/modoYoutube')
 const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
+const { text } = require('stream/consumers')
 
 const modoUsuarios = {}
 
@@ -302,10 +303,7 @@ app.post('/logout', async (req, res) => {
 
 async function mostrarMenu(sock, remoteJid, nome) {
     await sock.sendMessage(remoteJid, {
-        image: {
-            url: path.join(__dirname, '../assets/geral/apresentacao_img.jpeg')
-        },
-        caption: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
+        text: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
     })
 }
 
