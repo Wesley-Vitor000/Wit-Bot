@@ -8,7 +8,8 @@ const pesquisarYoutube = require('../../utils/pesquisarYoutube')
 
 function baixarVideoYoutube(link, saidaVideo) {
     return new Promise((resolve, reject) => {
-        const comando = `python3 -m yt_dlp --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "${saidaVideo}" "${link}"`
+        
+        const comando = `python3 -m yt_dlp --extractor-args "youtube:player_client=android" --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "${saidaVideo}" "${link}"`
         
         exec(comando, (error, stdout, stderr) => {
             if (error) {
