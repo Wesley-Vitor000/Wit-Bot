@@ -23,7 +23,7 @@ function baixarMusicaYoutube(link, saidaMusica) {
 -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" \
 --merge-output-format mp4 \
 --force-overwrites \
--o "${saidaVideo}" \
+-o "${saidaMusica}" \
 "${link}"`
         exec(comando, (error, stdout, stderr) => {
             if (error) {

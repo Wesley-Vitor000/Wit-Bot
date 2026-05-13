@@ -3,7 +3,7 @@ const formatarDuracao = require('./formatarDuracao')
 
 function pegarInfoYoutube(link) {
     return new Promise((resolve, reject) => {
-        const comando = `python -m yt_dlp --dump-json --no-playlist "${link}"`
+        const comando = `python3 -m yt_dlp --dump-json --no-playlist "${link}"`
 
         exec(comando, (error, stdout) => {
             if (error) {
