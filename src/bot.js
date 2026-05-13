@@ -24,6 +24,8 @@ const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
 const { text } = require('stream/consumers')
 
+const mensagensProcessadas = new set()
+
 const modoUsuarios = {}
 
 const app = express()
@@ -375,6 +377,19 @@ async function startBot() {
 
     sock.ev.on('messages.upsert', async (msg) => {
         const message = msg.messages[0]
+        
+        const messageId = message.key.id
+
+if (mensagensProcessadas.has(messageId)) {
+    console.log('⚠️ Mensagem duplicada ignorada:', messageId)
+    return
+}
+
+mensagensProcessadas.add(messageId)
+
+setTimeout(() => {
+    mensagensProcessadas.delete(messageId)
+}, 60000)
 
         if (!message.message) return
 
