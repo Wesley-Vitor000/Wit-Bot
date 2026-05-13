@@ -10,7 +10,7 @@ let qrAtual = null
 let statusBot = 'desconectado'
 
 const express = require('express')
-const QRcode = require('qrcode')
+const QRCode = require('qrcode')
 const pino = require('pino')
 
 const modoYoutube = require('./modos/youtube/modoYoutube')
