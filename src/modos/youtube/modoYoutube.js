@@ -10,7 +10,7 @@ function baixarVideoYoutube(link) {
     return new Promise((resolve, reject) => {
 
         const comando =
-            `python -m yt_dlp --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "modos/youtube/videos-baixados/video.%(ext)s" "${link}"`
+            `python3 -m yt_dlp --js-runtime node -f "bestvideo[height<=360][ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[height<=360][ext=mp4][vcodec^=avc1]" --merge-output-format mp4 --force-overwrites -o "modos/youtube/videos-baixados/video.%(ext)s" "${link}"`
 
         exec(comando, (error, stdout, stderr) => {
 
