@@ -81,8 +81,8 @@ E eu vou pesquisar e baixar pra você 😎`
         link = videoEncontrado.url
 
         await sock.sendMessage(remoteJid, {
-
-            text: `✅ Música encontrada!
+            image: { url: videoEncontrado.thumbnail },
+            caption: `✅ Música encontrada!
 🎵 ${videoEncontrado.titulo}\n\n⏱️ Duração: ${videoEncontrado.duracao}\n\n⬇️ Baixando agora...`
         })
     }
@@ -119,8 +119,7 @@ E eu vou pesquisar e baixar pra você 😎`
         })
 
         await sock.sendMessage(remoteJid, {
-            image: { url: infoMusica.thumbnail || videoEncontrado?.thumbnail },
-            caption: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
+            text: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
         })
 
 
