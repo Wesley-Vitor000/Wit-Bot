@@ -119,7 +119,9 @@ E eu vou pesquisar e baixar pra você 😎`
 
         await sock.sendMessage(remoteJid, {
 
-            text:
+            image: { url: videoEncontrado.thumbnail },
+
+            caption:
                 `✅ Vídeo encontrado!
 
 🎬 ${videoEncontrado.titulo}
@@ -152,18 +154,6 @@ E eu vou pesquisar e baixar pra você 😎`
             }
         }
 
-        await sock.sendMessage(remoteJid, {
-
-            image: { url: 'modos/youtube/imagens/baixando_video_yt.png' },
-
-            caption:
-                `🎬 *${infoVideo.titulo}*
-
-⏱️ Duração: ${infoVideo.duracao}
-
-O vídeo já tá na mão 😎
-Vou baixar agora...`
-        })
 
         await baixarVideoYoutube(linkFinal)
 

@@ -14,7 +14,8 @@ async function pesquisarYoutube(termo) {
         url: video.url,
         duracao: video.timestamp,
         canal: video.author.name,
-        views: video.views
+        views: video.views,
+        thumbnail: video.thumbnail
     }
 }
 
