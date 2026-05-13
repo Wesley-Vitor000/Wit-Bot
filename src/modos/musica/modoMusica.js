@@ -5,11 +5,17 @@ const path = require('path')
 const limparLinkYoutube = require('../../utils/limparLinkYoutube')
 const pegarInfoYoutube = require('../../utils/pegarInfoYoutube')
 const pesquisarYoutubeMusica = require('../../utils/pesquisarYoutubeMusicas')
-const caminhoCookies = path.join(__dirname, '..','..','..','cookies', 'cookies.txt')
+const caminhoCookies = path.join('/tmp', 'cookies.txt')
 
 function baixarMusicaYoutube(link, saidaMusica) {
     return new Promise((resolve, reject) => {
         
+        const caminhoCookies = path.join('/tmp', 'cookies.txt')
+
+        if (process.env.YOUTUBE_COOKIES) {
+            fs.writeFileSync(caminhoCookies, process.env.YOUTUBE_COOKIES)
+        }
+
         const comando = `python3 -m yt_dlp  --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=tv_embedded" --no-playlist --js-runtime node -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5 --force-overwrites -o "${saidaMusica}" "${link}"`
         
         exec(comando, (error, stdout, stderr) => {
