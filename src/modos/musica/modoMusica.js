@@ -9,6 +9,7 @@ const pesquisarYoutubeMusica = require('../../utils/pesquisarYoutubeMusicas')
 function baixarMusicaYoutube(link, saidaMusica) {
     return new Promise((resolve, reject) => {
         
+        const comando = `python3 -m yt_dlp --extractor-args "youtube:player_client=android" --no-playlist --js-runtime node -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5 --force-overwrites -o "${saidaMusica}" "${link}"`
         
         exec(comando, (error, stdout, stderr) => {
             if (error) {
