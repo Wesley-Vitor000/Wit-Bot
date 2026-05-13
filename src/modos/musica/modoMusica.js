@@ -29,8 +29,7 @@ async function modoMusica(sock, remoteJid, nome, text, modoUsuarios) {
     if (textoNormalizado === '2') {
         modoUsuarios[remoteJid] = 'musica'
         await sock.sendMessage(remoteJid, {
-            image: { url: 'modos/musica/imagens/modo_musica.jpeg' },
-            caption: `Você escolheu o Modo Música, ${nome}! 🎵
+            text: `Você escolheu o Modo Música, ${nome}! 🎵
 
 Nesse modo, você pode:
 
@@ -52,8 +51,7 @@ E eu vou pesquisar e baixar pra você 😎`
 
         if (!match) {
             await sock.sendMessage(remoteJid, {
-                image: { url: 'modos/musica/imagens/link_invalido_img.png' },
-                caption: `Hmm, ${nome}, esse link não é válido. 😕\n\nMe manda um link válido do YouTube, tá? 😉`
+                text: `Hmm, ${nome}, esse link não é válido. 😕\n\nMe manda um link válido do YouTube, tá? 😉`
             })
 
             return
@@ -81,10 +79,7 @@ E eu vou pesquisar e baixar pra você 😎`
 
         await sock.sendMessage(remoteJid, {
 
-            image: { url: videoEncontrado.thumbnail },
-
-            caption:
-                `✅ Música encontrada!
+            text: `✅ Música encontrada!
 🎵 ${videoEncontrado.titulo}\n\n⏱️ Duração: ${videoEncontrado.duracao}\n\n⬇️ Baixando agora...`
         })
     }
@@ -134,8 +129,7 @@ E eu vou pesquisar e baixar pra você 😎`
         console.log('Erro ao baixar a música:', error)
 
         await sock.sendMessage(remoteJid, {
-            image: { url: 'modos/musica/imagens/erro_baixar_musica_img.png' },
-            caption: `Poxa, ${nome}! 😕\n\nNão consegui baixar a música. Tente novamente mais tarde ou me envia um outro link.. 🙁`
+            text: `Poxa, ${nome}! 😕\n\nNão consegui baixar a música. Tente novamente mais tarde ou me envia um outro link.. 🙁`
         })
     }
 

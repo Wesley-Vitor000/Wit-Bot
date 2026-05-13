@@ -28,8 +28,7 @@ async function modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
         modoUsuarios[remoteJid] = 'figurinha'
 
         await sock.sendMessage(remoteJid, {
-            image: { url: 'modos/figurinhas/imagens/modo_figurinhas.png' },
-            caption: `Você escolheu o Modo Figurinhas, ${nome}! 🖼️\n\nNesse modo, você pode me enviar imagens ou vídeos curtos, e eu vou transformar eles em figurinhas para você usar no WhatsApp! 😎\n\nÉ só me enviar a imagem ou vídeo que você quer transformar em figurinha, e eu faço o resto! 🚀`
+            text: `Você escolheu o Modo Figurinhas, ${nome}! 🖼️\n\nNesse modo, você pode me enviar imagens ou vídeos curtos, e eu vou transformar eles em figurinhas para você usar no WhatsApp! 😎\n\nÉ só me enviar a imagem ou vídeo que você quer transformar em figurinha, e eu faço o resto! 🚀`
         })
         return
     }
@@ -83,8 +82,7 @@ async function modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
 
             if (segundosVideo > 10) {
                 await sock.sendMessage(remoteJid, {
-                    image: { url: 'modos/figurinhas/imagens/erro_video_longo.png' },
-                    caption: `Hmm, ${nome}, esse vídeo é muito longo. 😕\n\nMe envie um vídeo de no máximo 10 segundos, tá? 😉`
+                    text: `Hmm, ${nome}, esse vídeo é muito longo. 😕\n\nMe envie um vídeo de no máximo 10 segundos, tá? 😉`
                 })
                 return
             }

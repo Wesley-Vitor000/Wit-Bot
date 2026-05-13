@@ -439,8 +439,7 @@ async function startBot() {
         }
 
         await sock.sendMessage(remoteJid, {
-            image: { url: 'assets/geral/apresentacao_img.jpeg' },
-            caption: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
+            text: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
         })
     })
 }

@@ -41,9 +41,8 @@ async function modoYoutube(sock, remoteJid, nome, text, modoUsuarios) {
         modoUsuarios[remoteJid] = 'youtube'
 
         await sock.sendMessage(remoteJid, {
-            image: { url: 'modos/youtube/imagens/modo_youtube.jpeg' },
-
-            caption:
+        
+            text:
                 `Você escolheu o Modo Youtube, ${nome}! 🎥
 
 Nesse modo, você pode:
@@ -82,9 +81,7 @@ E eu vou pesquisar e baixar pra você 😎`
         if (!match) {
 
             await sock.sendMessage(remoteJid, {
-                image: { url: 'modos/youtube/imagens/erro_baixar_video_yt.png' },
-
-                caption:
+                text:
                     `Poxa, ${nome}, não encontrei nenhum link válido 😕`
             })
 
@@ -175,11 +172,8 @@ E eu vou pesquisar e baixar pra você 😎`
 
             await sock.sendMessage(remoteJid, {
 
-                image: {
-                    url: 'modos/youtube/imagens/erro_video_grande_yt.png'
-                },
 
-                caption:
+                 text:
                     `Caramba, ${nome}, esse vídeo ficou grande demais 😕
 
 📦 ${tamanhoMB.toFixed(1)} MB
@@ -235,12 +229,7 @@ Aqui está seu vídeo 😎`
 
         await sock.sendMessage(remoteJid, {
 
-            image: {
-                url: 'modos/youtube/imagens/erro_baixar_video_yt.png'
-            },
-
-            caption:
-                `Poxa, ${nome}, não consegui baixar esse vídeo 😕
+            text: `Poxa, ${nome}, não consegui baixar esse vídeo 😕
 
 Pode estar:
 • protegido
@@ -249,5 +238,6 @@ Pode estar:
         })
     }
 }
+
 
 module.exports = modoYoutube
