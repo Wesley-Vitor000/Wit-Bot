@@ -15,7 +15,7 @@ function baixarVideoYoutube(link, saidaVideo) {
             fs.writeFileSync(caminhoCookies, process.env.YOUTUBE_COOKIES)
         }
 
-        const comando = `python3 -m yt_dlp --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=android,web" --remote-components ejs:github --js-runtime node -f "best[height<=360][ext=mp4]/best[height<=360]" --merge-output-format mp4 --force-overwrites -o "${saidaVideo}" "${link}"`
+        const comando = `python3 -m yt_dlp --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=android" --remote-components ejs:github --js-runtime deno -f "best[height<=360][ext=mp4]/best[height<=360]" --force-overwrites -o "${saidaVideo}" "${link}"`
 
         exec(comando, (error, stdout, stderr) => {
             if (error) {
