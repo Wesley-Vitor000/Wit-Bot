@@ -5,6 +5,9 @@ const {
     fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys')
 
+const fs = require('fs')
+const path = require('path')
+
 let sockAtual = null // Variável global para armazenar a instância do socket, que nada mais é do que a conexão do bot com o WhatsApp Web
 let botRodando = false
 let qrAtual = null
@@ -175,6 +178,10 @@ function gerarPagina(conteudoPrincipal) {
                     <form action="/logout" method="POST">
                         <button class="danger" type="submit">🚪 Deslogar WhatsApp</button>
                     </form>
+
+                    <form action="/resetar-sessao" method="POST">
+    <button class="danger" type="submit">🧹 Resetar sessão e gerar novo QR</button>
+</form>
                 </div>
 
                 <div class="footer">
@@ -440,6 +447,50 @@ async function startBot() {
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`)
+})
+
+app.post('/resetar-sessao', async (req, res) => {
+    try {
+        atualizarStatus('resetando sessão', 'Apagando pasta auth para gerar novo QR Code')
+
+        if (sockAtual) {
+            try {
+                sockAtual.end(new Error('Sessão resetada pelo painel'))
+            } catch (error) {
+                console.log('Erro ao encerrar socket:', error)
+            }
+        }
+
+        sockAtual = null
+        botRodando = false
+        qrAtual = null
+
+        const caminhoAuth = path.join(__dirname, '..', 'auth')
+
+        if (fs.existsSync(caminhoAuth)) {
+            fs.rmSync(caminhoAuth, {
+                recursive: true,
+                force: true
+            })
+
+            console.log('🧹 Pasta auth apagada com sucesso.')
+        }
+
+        atualizarStatus('gerando novo QR', 'Sessão resetada. Gerando novo QR Code.')
+
+        setTimeout(() => {
+            startBot()
+        }, 1000)
+
+        res.redirect('/')
+
+    } catch (error) {
+        console.log('Erro ao resetar sessão:', error)
+
+        atualizarStatus('erro', 'Erro ao resetar sessão pelo painel')
+
+        res.redirect('/')
+    }
 })
 
 startBot()
