@@ -411,7 +411,7 @@ setTimeout(() => {
             message.message.conversation ||
             message.message.extendedTextMessage?.text ||
             ''
-        
+        // Impede de receber mensagem vazia
         if (!text.trim() && !message.message.imageMessage && !message.message.videoMessage) {
     console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
     return
