@@ -41,7 +41,7 @@ async function modoYoutube(sock, remoteJid, nome, text, modoUsuarios) {
         modoUsuarios[remoteJid] = 'youtube'
 
         await sock.sendMessage(remoteJid, {
-        
+
             text:
                 `Você escolheu o Modo Youtube, ${nome}! 🎥
 
@@ -74,6 +74,8 @@ E eu vou pesquisar e baixar pra você 😎`
     // SE FOR LINK
     // =========================================
 
+    let videoEncontrado = null
+
     if (ehLinkYoutube) {
 
         const match = text.match(/(https?:\/\/[^\s]+)/g)
@@ -101,7 +103,7 @@ E eu vou pesquisar e baixar pra você 😎`
             text: '🔎 Pesquisando vídeo no YouTube...'
         })
 
-        const videoEncontrado = await pesquisarYoutube(text)
+        videoEncontrado = await pesquisarYoutube(text)
 
         if (!videoEncontrado) {
 
@@ -146,97 +148,97 @@ E eu vou pesquisar e baixar pra você 😎`
             console.log('Erro ao pegar informações:', error)
 
             infoVideo = {
-                titulo: 'Vídeo do YouTube',
-                duracao: 'Não informada'
+                titulo: videoEncontrado?.titulo || 'Vídeo do YouTube',
+                duracao: videoEncontrado?.duracao || 'Não informada'
             }
         }
 
 
-        await baixarVideoYoutube(linkFinal)
+    await baixarVideoYoutube(linkFinal)
+
+    await sock.sendMessage(remoteJid, {
+        text: `😁 Download finalizado, ${nome}!`
+    })
+
+    const caminhoVideo =
+        'modos/youtube/videos-baixados/video.mp4'
+
+    const tamanhoMB =
+        fs.statSync(caminhoVideo).size / (1024 * 1024)
+
+    // =========================================
+    // VERIFICAR TAMANHO
+    // =========================================
+
+    if (tamanhoMB > 90) {
 
         await sock.sendMessage(remoteJid, {
-            text: `😁 Download finalizado, ${nome}!`
-        })
-
-        const caminhoVideo =
-            'modos/youtube/videos-baixados/video.mp4'
-
-        const tamanhoMB =
-            fs.statSync(caminhoVideo).size / (1024 * 1024)
-
-        // =========================================
-        // VERIFICAR TAMANHO
-        // =========================================
-
-        if (tamanhoMB > 90) {
-
-            await sock.sendMessage(remoteJid, {
 
 
-                 text:
-                    `Caramba, ${nome}, esse vídeo ficou grande demais 😕
+            text:
+                `Caramba, ${nome}, esse vídeo ficou grande demais 😕
 
 📦 ${tamanhoMB.toFixed(1)} MB
 
 O WhatsApp não deixa enviar 😭`
-            })
-
-            if (fs.existsSync(caminhoVideo)) {
-                fs.unlinkSync(caminhoVideo)
-            }
-
-            return
-        }
-
-        // =========================================
-        // ENVIAR VÍDEO
-        // =========================================
-
-        await sock.sendMessage(remoteJid, {
-
-            video: { url: caminhoVideo },
-
-            caption:
-                `🎬 *${infoVideo.titulo}*
-
-⏱️ Duração: ${infoVideo.duracao}
-
-Aqui está seu vídeo 😎`
         })
-
-        // =========================================
-        // APAGAR ARQUIVO
-        // =========================================
-
-        setTimeout(() => {
-
-            if (fs.existsSync(caminhoVideo)) {
-                fs.unlinkSync(caminhoVideo)
-            }
-
-        }, 3000)
-
-    } catch (error) {
-
-        console.log('Erro ao baixar vídeo:', error)
-
-        const caminhoVideo =
-            'modos/youtube/videos-baixados/video.mp4'
 
         if (fs.existsSync(caminhoVideo)) {
             fs.unlinkSync(caminhoVideo)
         }
 
-        await sock.sendMessage(remoteJid, {
+        return
+    }
 
-            text: `Poxa, ${nome}, não consegui baixar esse vídeo 😕
+    // =========================================
+    // ENVIAR VÍDEO
+    // =========================================
+
+    await sock.sendMessage(remoteJid, {
+
+        video: { url: caminhoVideo },
+
+        caption:
+            `🎬 *${infoVideo.titulo}*
+
+⏱️ Duração: ${infoVideo.duracao}
+
+Aqui está seu vídeo 😎`
+    })
+
+    // =========================================
+    // APAGAR ARQUIVO
+    // =========================================
+
+    setTimeout(() => {
+
+        if (fs.existsSync(caminhoVideo)) {
+            fs.unlinkSync(caminhoVideo)
+        }
+
+    }, 3000)
+
+} catch (error) {
+
+    console.log('Erro ao baixar vídeo:', error)
+
+    const caminhoVideo =
+        'modos/youtube/videos-baixados/video.mp4'
+
+    if (fs.existsSync(caminhoVideo)) {
+        fs.unlinkSync(caminhoVideo)
+    }
+
+    await sock.sendMessage(remoteJid, {
+
+        text: `Poxa, ${nome}, não consegui baixar esse vídeo 😕
 
 Pode estar:
 • protegido
 • restrito
 • bloqueado pelo YouTube`
-        })
-    }
+    })
+}
 }
 
 

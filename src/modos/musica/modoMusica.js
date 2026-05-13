@@ -44,6 +44,9 @@ E eu vou pesquisar e baixar pra você 😎`
         })
         return
     }
+    
+    let link
+    let videoEncontrado = null
 
     if (textoNormalizado.includes('youtube.com') || textoNormalizado.includes('youtu.be')) {
 
@@ -57,7 +60,7 @@ E eu vou pesquisar e baixar pra você 😎`
             return
         }
 
-        let link = match[0]
+        link = match[0]
         link = limparLinkYoutube(link)
 
     } else {
@@ -65,7 +68,7 @@ E eu vou pesquisar e baixar pra você 😎`
             text: '🔎 Pesquisando música no YouTube...'
         })
 
-        const videoEncontrado = await pesquisarYoutubeMusica(text)
+        videoEncontrado = await pesquisarYoutubeMusica(text)
 
         if (!videoEncontrado) {
             await sock.sendMessage(remoteJid, {
@@ -93,9 +96,10 @@ E eu vou pesquisar e baixar pra você 😎`
             console.log('Erro ao pegar as informações do vídeo:', error)
 
             infoMusica = {
-                titulo: 'Música do YouTube',
-                duracao: 'Duração Não informada'
-            }
+    titulo: videoEncontrado?.titulo || 'Música do YouTube',
+    duracao: videoEncontrado?.duracao || 'Duração não informada',
+    thumbnail: videoEncontrado?.thumbnail
+}
         }
 
         await baixarMusicaYoutube(link)
@@ -115,7 +119,8 @@ E eu vou pesquisar e baixar pra você 😎`
         })
 
         await sock.sendMessage(remoteJid, {
-            text: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
+            image: { url: infoMusica.thumbnail || videoEncontrado?.thumbnail },
+            caption: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
         })
 
 
