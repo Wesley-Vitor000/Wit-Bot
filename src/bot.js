@@ -24,7 +24,7 @@ const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
 const { text } = require('stream/consumers')
 
-const mensagensProcessadas = new set()
+const mensagensProcessadas = new Set()
 
 const modoUsuarios = {}
 
