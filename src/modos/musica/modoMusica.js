@@ -10,8 +10,6 @@ function baixarMusicaYoutube(link, saidaMusica) {
     return new Promise((resolve, reject) => {
         
         
-        const comando = `python3 -m yt_dlp --extractor-args "youtube:player_client=android" --no-playlist --js-runtime node -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5 --force-overwrites -o "${saidaMusica}" "${link}"`
-        
         exec(comando, (error, stdout, stderr) => {
             if (error) {
                 console.error('Erro ao baixar música:', error)
@@ -143,12 +141,7 @@ E eu vou pesquisar e baixar pra você 😎`
         
         if (infoMusica.thumbnail || videoEncontrado?.thumbnail) {
             await sock.sendMessage(remoteJid, {
-                image: { url: infoMusica.thumbnail || videoEncontrado?.thumbnail },
-                caption: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
-            })
-        } else {
-            await sock.sendMessage(remoteJid, {
-                text: `🎵 *${infoMusica.titulo}*\n\n⏱️ Duração: ${infoMusica.duracao}\n\nAqui está a música que você pediu, ${nome}! 🎵`
+                text: `Aí está a música que você pediu 😁☝🏼`
             })
         }
         
