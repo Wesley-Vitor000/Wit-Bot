@@ -22,7 +22,7 @@ const pino = require('pino')
 const modoYoutube = require('./modos/youtube/modoYoutube')
 const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
-const require('./modos/voz/modoVoz')
+const modoVoz = require('./modos/voz/modoVoz')
 const { text } = require('stream/consumers')
 
 const mensagensProcessadas = new Set()
