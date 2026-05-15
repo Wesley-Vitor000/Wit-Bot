@@ -1,3 +1,20 @@
+Sim. Aqui está o bot.js completo já com:
+
+menu novo estilizado;
+
+oi, menu, /menu, bom dia etc. abrindo o menu;
+
+/menu limpando modo atual;
+
+modo ativo antes dos números;
+
+modo voz funcionando sem cair no modo música;
+
+correção do text;
+
+removi const { text } = require('stream/consumers'), que tava sobrando.
+
+
 const {
     default: makeWASocket,
     useMultiFileAuthState,
@@ -23,7 +40,6 @@ const modoYoutube = require('./modos/youtube/modoYoutube')
 const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
 const modoVoz = require('./modos/voz/modoVoz')
-const { text } = require('stream/consumers')
 
 const mensagensProcessadas = new Set()
 
@@ -41,6 +57,17 @@ function atualizarStatus(novoStatus, evento) {
     statusBot = novoStatus
     ultimoEvento = evento
     ultimaAtualizacao = new Date().toLocaleString('pt-BR')
+}
+
+function pegarHoraAtual() {
+    return new Date().toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+}
+
+function pegarDataAtual() {
+    return new Date().toLocaleDateString('pt-BR')
 }
 
 function gerarPagina(conteudoPrincipal) {
@@ -184,8 +211,8 @@ function gerarPagina(conteudoPrincipal) {
                     </form>
 
                     <form action="/resetar-sessao" method="POST">
-    <button class="danger" type="submit">🧹 Resetar sessão e gerar novo QR</button>
-</form>
+                        <button class="danger" type="submit">🧹 Resetar sessão e gerar novo QR</button>
+                    </form>
                 </div>
 
                 <div class="footer">
@@ -206,7 +233,7 @@ app.get('/', async (req, res) => {
             `)
         )
     }
-    
+
     if (!qrAtual) {
         return res.send(
             gerarPagina(`
@@ -215,9 +242,9 @@ app.get('/', async (req, res) => {
             `)
         )
     }
-    
+
     const qrImagem = await QRCode.toDataURL(qrAtual)
-    
+
     res.send(
         gerarPagina(`
             <h2>📲 Escaneie o QR Code</h2>
@@ -242,71 +269,99 @@ app.post('/ligar', async (req, res) => {
         atualizarStatus('ligando', 'Comando de ligar recebido pelo painel')
         startBot()
     }
-    
+
     res.redirect('/')
 })
 
 app.post('/desligar', async (req, res) => {
     try {
         atualizarStatus('pausando', 'Comando de pausar recebido pelo painel')
-        
+
         if (sockAtual) {
             sockAtual.end(new Error('Bot pausado pelo painel'))
         }
     } catch (error) {
         console.log('Erro ao pausar bot:', error)
     }
-    
+
     sockAtual = null
     botRodando = false
     qrAtual = null
     atualizarStatus('pausado', 'Bot pausado pelo painel')
-    
+
     res.redirect('/')
 })
 
 app.post('/reiniciar', async (req, res) => {
     try {
         atualizarStatus('reiniciando', 'Comando de reiniciar recebido pelo painel')
-        
+
         if (sockAtual) {
             sockAtual.end(new Error('Bot reiniciado pelo painel'))
         }
     } catch (error) {
         console.log('Erro ao desligar antes de reiniciar:', error)
     }
-    
+
     sockAtual = null
     botRodando = false
     qrAtual = null
-    
+
     startBot()
-    
+
     res.redirect('/')
 })
 
 app.post('/logout', async (req, res) => {
     try {
         atualizarStatus('deslogando', 'Comando de deslogar WhatsApp recebido pelo painel')
-        
+
         if (sockAtual) {
             await sockAtual.logout()
         }
     } catch (error) {
         console.log('Erro ao deslogar:', error)
     }
-    
+
     sockAtual = null
     botRodando = false
     qrAtual = null
     atualizarStatus('deslogado', 'Sessão do WhatsApp encerrada. Será necessário escanear QR novamente.')
-    
+
     res.redirect('/')
 })
 
 async function mostrarMenu(sock, remoteJid, nome) {
+    const hora = pegarHoraAtual()
+    const data = pegarDataAtual()
+
     await sock.sendMessage(remoteJid, {
-        text: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n•4. Voz Grave\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
+        text: `╭─〔 𝙒𝙄𝙏 𝘽𝙊𝙏 〕─╮
+
+👑 Dono: Wesley
+⚡ Status: Online
+⏰ Hora: ${hora}
+📅 Data: ${data}
+
+╭─〔 📌 𝙈𝙀𝙉𝙐 〕─╮
+🎬 1 • YouTube
+🎵 2 • Música
+🖼️ 3 • Figurinha
+🎙️ 4 • Vozes
+╰────────────────╯
+
+╭─〔 🎙️ 𝙑𝙊𝙕𝙀𝙎 〕─╮
+1 • Grave
+2 • Fina
+3 • Robô
+4 • Eco
+5 • Rádio
+╰────────────────╯
+
+╭─〔 ⚙️ 𝙎𝙄𝙎𝙏𝙀𝙈𝘼 〕─╮
+🚀 Wit Engine v1.0
+💻 Infinity Bots
+╰────────────────╯`
     })
 }
 
@@ -315,16 +370,16 @@ async function startBot() {
         console.log('⚠️ O bot já está rodando.')
         return
     }
-    
+
     botRodando = true
     atualizarStatus('iniciando', 'Inicializando conexão com WhatsApp')
-    
+
     const { state, saveCreds } = await useMultiFileAuthState('auth')
-    
+
     const { version } = await fetchLatestBaileysVersion()
-    
+
     console.log('Versão do WhatsApp Web:', version)
-    
+
     const sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
@@ -332,36 +387,36 @@ async function startBot() {
         version,
         printQRInTerminal: false
     })
-    
+
     sockAtual = sock
-    
+
     sock.ev.on('connection.update', (update) => {
         const { connection, qr, lastDisconnect } = update
-        
+
         if (qr) {
             qrAtual = qr
             atualizarStatus('aguardando conexão', 'QR Code atualizado, aguardando escaneamento')
             console.log('QR Code atualizado, aguardando escaneamento...')
         }
-        
+
         if (connection === 'open') {
             qrAtual = null
             atualizarStatus('conectado', 'Bot conectado com sucesso ao WhatsApp')
             console.log('🔥 Bot conectado com sucesso!')
         }
-        
+
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode
-            
+
             console.log('⚠️ Conexão fechada. Código:', statusCode)
-            
+
             sockAtual = null
             botRodando = false
-            
+
             if (statusBot === 'pausado' || statusBot === 'deslogado') {
                 return
             }
-            
+
             if (statusCode !== DisconnectReason.loggedOut) {
                 atualizarStatus('reconectando', `Conexão fechada com código ${statusCode}. Tentando reconectar.`)
                 console.log('🔁 Tentando reconectar...')
@@ -373,114 +428,128 @@ async function startBot() {
             }
         }
     })
-    
+
     sock.ev.on('creds.update', saveCreds)
-    
+
     sock.ev.on('messages.upsert', async (msg) => {
         const message = msg.messages[0]
-        
+
         const messageId = message.key.id
-        
+
         if (mensagensProcessadas.has(messageId)) {
             console.log('⚠️ Mensagem duplicada ignorada:', messageId)
             return
         }
-        
+
         mensagensProcessadas.add(messageId)
-        
+
         setTimeout(() => {
             mensagensProcessadas.delete(messageId)
         }, 60000)
-        
+
         if (!message.message) return
-        
+
         const remoteJid = message.key.remoteJid
-        
+
         if (message.key.fromMe) {
             console.log('⚠️ Mensagem enviada por mim mesmo, ignorando resposta automática.')
             return
         }
-        
+
         if (remoteJid.endsWith('@g.us')) {
             console.log('⚠️ Mensagem recebida de grupo, ignorando.')
             return
         }
-        
+
         const nome = message.pushName || 'Desconhecido'
-        
-        
+
         let text =
             message.message.conversation ||
             message.message.extendedTextMessage?.text ||
             ''
-        
+
         if (typeof text !== 'string') {
             text = ''
         }
+
         const temImagem = message.message?.imageMessage
         const temVideo = message.message?.videoMessage
         const temAudio = message.message?.audioMessage
-        
+
         // Impede de receber mensagem vazia
         if (!text.trim() && !temImagem && !temVideo && !temAudio) {
             console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
             return
         }
-        
+
         const textNormalizado = text.toLowerCase().trim()
-        
+
         console.log('📩 Mensagem recebida:', text)
         ultimoEvento = `Mensagem recebida de ${nome}: ${text || '[mídia]'}`
         ultimaAtualizacao = new Date().toLocaleString('pt-BR')
-        
-        if (textNormalizado === '/menu') {
+
+        const chamadasMenu = [
+            '/menu',
+            'menu',
+            'oi',
+            'olá',
+            'ola',
+            'opa',
+            'eai',
+            'e aí',
+            'bom dia',
+            'boa tarde',
+            'boa noite'
+        ]
+
+        if (chamadasMenu.includes(textNormalizado)) {
+            delete modoUsuarios[remoteJid]
+
             await mostrarMenu(sock, remoteJid, nome)
             return
         }
-        
-        if (textNormalizado === '1') {
-            await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
-            return
-        }
-        
-        if (textNormalizado === '2') {
-            await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
-            return
-        }
-        
-        if (textNormalizado === '3') {
-            await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
-            return
-        }
-        
-        if (textNormalizado === '4') {
+
+        if (modoUsuarios[remoteJid]?.modo === 'voz') {
             await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
-        
+
         if (modoUsuarios[remoteJid] === 'youtube') {
             await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-        
+
         if (modoUsuarios[remoteJid] === 'musica') {
             await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-        
+
         if (modoUsuarios[remoteJid] === 'figurinha') {
             await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
-        
-        if (modoUsuarios[remoteJid] === 'vozgrave') {
+
+        if (textNormalizado === '1') {
+            await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (textNormalizado === '2') {
+            await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
+            return
+        }
+
+        if (textNormalizado === '3') {
+            await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
+            return
+        }
+
+        if (textNormalizado === '4') {
             await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
-        
-        await sock.sendMessage(remoteJid, {
-            text: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
-        })
+
+        await mostrarMenu(sock, remoteJid, nome)
     })
 }
 
@@ -491,7 +560,7 @@ app.listen(PORT, () => {
 app.post('/resetar-sessao', async (req, res) => {
     try {
         atualizarStatus('resetando sessão', 'Apagando pasta auth para gerar novo QR Code')
-        
+
         if (sockAtual) {
             try {
                 sockAtual.end(new Error('Sessão resetada pelo painel'))
@@ -499,35 +568,35 @@ app.post('/resetar-sessao', async (req, res) => {
                 console.log('Erro ao encerrar socket:', error)
             }
         }
-        
+
         sockAtual = null
         botRodando = false
         qrAtual = null
-        
+
         const caminhoAuth = path.join(__dirname, '..', 'auth')
-        
+
         if (fs.existsSync(caminhoAuth)) {
             fs.rmSync(caminhoAuth, {
                 recursive: true,
                 force: true
             })
-            
+
             console.log('🧹 Pasta auth apagada com sucesso.')
         }
-        
+
         atualizarStatus('gerando novo QR', 'Sessão resetada. Gerando novo QR Code.')
-        
+
         setTimeout(() => {
             startBot()
         }, 1000)
-        
+
         res.redirect('/')
-        
+
     } catch (error) {
         console.log('Erro ao resetar sessão:', error)
-        
+
         atualizarStatus('erro', 'Erro ao resetar sessão pelo painel')
-        
+
         res.redirect('/')
     }
 })
