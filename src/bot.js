@@ -206,7 +206,7 @@ app.get('/', async (req, res) => {
             `)
         )
     }
-
+    
     if (!qrAtual) {
         return res.send(
             gerarPagina(`
@@ -215,9 +215,9 @@ app.get('/', async (req, res) => {
             `)
         )
     }
-
+    
     const qrImagem = await QRCode.toDataURL(qrAtual)
-
+    
     res.send(
         gerarPagina(`
             <h2>📲 Escaneie o QR Code</h2>
@@ -242,65 +242,65 @@ app.post('/ligar', async (req, res) => {
         atualizarStatus('ligando', 'Comando de ligar recebido pelo painel')
         startBot()
     }
-
+    
     res.redirect('/')
 })
 
 app.post('/desligar', async (req, res) => {
     try {
         atualizarStatus('pausando', 'Comando de pausar recebido pelo painel')
-
+        
         if (sockAtual) {
             sockAtual.end(new Error('Bot pausado pelo painel'))
         }
     } catch (error) {
         console.log('Erro ao pausar bot:', error)
     }
-
+    
     sockAtual = null
     botRodando = false
     qrAtual = null
     atualizarStatus('pausado', 'Bot pausado pelo painel')
-
+    
     res.redirect('/')
 })
 
 app.post('/reiniciar', async (req, res) => {
     try {
         atualizarStatus('reiniciando', 'Comando de reiniciar recebido pelo painel')
-
+        
         if (sockAtual) {
             sockAtual.end(new Error('Bot reiniciado pelo painel'))
         }
     } catch (error) {
         console.log('Erro ao desligar antes de reiniciar:', error)
     }
-
+    
     sockAtual = null
     botRodando = false
     qrAtual = null
-
+    
     startBot()
-
+    
     res.redirect('/')
 })
 
 app.post('/logout', async (req, res) => {
     try {
         atualizarStatus('deslogando', 'Comando de deslogar WhatsApp recebido pelo painel')
-
+        
         if (sockAtual) {
             await sockAtual.logout()
         }
     } catch (error) {
         console.log('Erro ao deslogar:', error)
     }
-
+    
     sockAtual = null
     botRodando = false
     qrAtual = null
     atualizarStatus('deslogado', 'Sessão do WhatsApp encerrada. Será necessário escanear QR novamente.')
-
+    
     res.redirect('/')
 })
 
@@ -315,16 +315,16 @@ async function startBot() {
         console.log('⚠️ O bot já está rodando.')
         return
     }
-
+    
     botRodando = true
     atualizarStatus('iniciando', 'Inicializando conexão com WhatsApp')
-
+    
     const { state, saveCreds } = await useMultiFileAuthState('auth')
-
+    
     const { version } = await fetchLatestBaileysVersion()
-
+    
     console.log('Versão do WhatsApp Web:', version)
-
+    
     const sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
@@ -332,36 +332,36 @@ async function startBot() {
         version,
         printQRInTerminal: false
     })
-
+    
     sockAtual = sock
-
+    
     sock.ev.on('connection.update', (update) => {
         const { connection, qr, lastDisconnect } = update
-
+        
         if (qr) {
             qrAtual = qr
             atualizarStatus('aguardando conexão', 'QR Code atualizado, aguardando escaneamento')
             console.log('QR Code atualizado, aguardando escaneamento...')
         }
-
+        
         if (connection === 'open') {
             qrAtual = null
             atualizarStatus('conectado', 'Bot conectado com sucesso ao WhatsApp')
             console.log('🔥 Bot conectado com sucesso!')
         }
-
+        
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode
-
+            
             console.log('⚠️ Conexão fechada. Código:', statusCode)
-
+            
             sockAtual = null
             botRodando = false
-
+            
             if (statusBot === 'pausado' || statusBot === 'deslogado') {
                 return
             }
-
+            
             if (statusCode !== DisconnectReason.loggedOut) {
                 atualizarStatus('reconectando', `Conexão fechada com código ${statusCode}. Tentando reconectar.`)
                 console.log('🔁 Tentando reconectar...')
@@ -373,102 +373,102 @@ async function startBot() {
             }
         }
     })
-
+    
     sock.ev.on('creds.update', saveCreds)
-
+    
     sock.ev.on('messages.upsert', async (msg) => {
         const message = msg.messages[0]
         
         const messageId = message.key.id
-
-if (mensagensProcessadas.has(messageId)) {
-    console.log('⚠️ Mensagem duplicada ignorada:', messageId)
-    return
-}
-
-mensagensProcessadas.add(messageId)
-
-setTimeout(() => {
-    mensagensProcessadas.delete(messageId)
-}, 60000)
-
+        
+        if (mensagensProcessadas.has(messageId)) {
+            console.log('⚠️ Mensagem duplicada ignorada:', messageId)
+            return
+        }
+        
+        mensagensProcessadas.add(messageId)
+        
+        setTimeout(() => {
+            mensagensProcessadas.delete(messageId)
+        }, 60000)
+        
         if (!message.message) return
-
+        
         const remoteJid = message.key.remoteJid
-
+        
         if (message.key.fromMe) {
             console.log('⚠️ Mensagem enviada por mim mesmo, ignorando resposta automática.')
             return
         }
-
+        
         if (remoteJid.endsWith('@g.us')) {
             console.log('⚠️ Mensagem recebida de grupo, ignorando.')
             return
         }
-
+        
         const nome = message.pushName || 'Desconhecido'
-
+        
         const text =
             message.message.conversation ||
             message.message.extendedTextMessage?.text ||
             ''
         // Impede de receber mensagem vazia
         if (!text.trim() && !message.message.imageMessage && !message.message.videoMessage) {
-    console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
-    return
-}
+            console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
+            return
+        }
         
         const textNormalizado = text.toLowerCase().trim()
-
+        
         console.log('📩 Mensagem recebida:', text)
         ultimoEvento = `Mensagem recebida de ${nome}: ${text || '[mídia]'}`
         ultimaAtualizacao = new Date().toLocaleString('pt-BR')
-
+        
         if (textNormalizado === '/menu') {
             await mostrarMenu(sock, remoteJid, nome)
             return
         }
-
+        
         if (textNormalizado === '1') {
             await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-
+        
         if (textNormalizado === '2') {
             await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-
+        
         if (textNormalizado === '3') {
             await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
         
         if (textNormalizado === '4') {
-    await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
-    return
-}
-
+            await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
+            return
+        }
+        
         if (modoUsuarios[remoteJid] === 'youtube') {
             await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-
+        
         if (modoUsuarios[remoteJid] === 'musica') {
             await modoMusica(sock, remoteJid, nome, text, modoUsuarios)
             return
         }
-
+        
         if (modoUsuarios[remoteJid] === 'figurinha') {
             await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
         
         if (modoUsuarios[remoteJid] === 'vozgrave') {
-    await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
-    return
-}
-
+            await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
+            return
+        }
+        
         await sock.sendMessage(remoteJid, {
             text: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
         })
@@ -482,7 +482,7 @@ app.listen(PORT, () => {
 app.post('/resetar-sessao', async (req, res) => {
     try {
         atualizarStatus('resetando sessão', 'Apagando pasta auth para gerar novo QR Code')
-
+        
         if (sockAtual) {
             try {
                 sockAtual.end(new Error('Sessão resetada pelo painel'))
@@ -490,35 +490,35 @@ app.post('/resetar-sessao', async (req, res) => {
                 console.log('Erro ao encerrar socket:', error)
             }
         }
-
+        
         sockAtual = null
         botRodando = false
         qrAtual = null
-
+        
         const caminhoAuth = path.join(__dirname, '..', 'auth')
-
+        
         if (fs.existsSync(caminhoAuth)) {
             fs.rmSync(caminhoAuth, {
                 recursive: true,
                 force: true
             })
-
+            
             console.log('🧹 Pasta auth apagada com sucesso.')
         }
-
+        
         atualizarStatus('gerando novo QR', 'Sessão resetada. Gerando novo QR Code.')
-
+        
         setTimeout(() => {
             startBot()
         }, 1000)
-
+        
         res.redirect('/')
-
+        
     } catch (error) {
         console.log('Erro ao resetar sessão:', error)
-
+        
         atualizarStatus('erro', 'Erro ao resetar sessão pelo painel')
-
+        
         res.redirect('/')
     }
 })
