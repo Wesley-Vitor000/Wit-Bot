@@ -1,19 +1,3 @@
-Sim. Aqui está o bot.js completo já com:
-
-menu novo estilizado;
-
-oi, menu, /menu, bom dia etc. abrindo o menu;
-
-/menu limpando modo atual;
-
-modo ativo antes dos números;
-
-modo voz funcionando sem cair no modo música;
-
-correção do text;
-
-removi const { text } = require('stream/consumers'), que tava sobrando.
-
 
 const {
     default: makeWASocket,
