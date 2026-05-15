@@ -408,6 +408,15 @@ async function startBot() {
         
         const nome = message.pushName || 'Desconhecido'
         
+        
+        let text =
+            message.message.conversation ||
+            message.message.extendedTextMessage?.text ||
+            ''
+        
+        if (typeof text !== 'string') {
+            text = ''
+        }
         const temImagem = message.message?.imageMessage
         const temVideo = message.message?.videoMessage
         const temAudio = message.message?.audioMessage
