@@ -22,6 +22,7 @@ const pino = require('pino')
 const modoYoutube = require('./modos/youtube/modoYoutube')
 const modoMusica = require('./modos/musica/modoMusica')
 const modoFigurinha = require('./modos/figurinhas/modoFigurinha')
+const require('./modos/voz/modoVoz')
 const { text } = require('stream/consumers')
 
 const mensagensProcessadas = new Set()
@@ -305,7 +306,7 @@ app.post('/logout', async (req, res) => {
 
 async function mostrarMenu(sock, remoteJid, nome) {
     await sock.sendMessage(remoteJid, {
-        text: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
+        text: `Aqui está o menu, ${nome}!!\n\n•1. Modo Youtube\n•2. Modo Música\n•3. Modo Figurinhas\n•4. Voz Grave\n\nDigite o número da opção desejada que eu vou te mostrar mais detalhes! 😉`
     })
 }
 
@@ -442,6 +443,11 @@ setTimeout(() => {
             await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
+        
+        if (textNormalizado === '4') {
+    await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
+    return
+}
 
         if (modoUsuarios[remoteJid] === 'youtube') {
             await modoYoutube(sock, remoteJid, nome, text, modoUsuarios)
@@ -457,6 +463,11 @@ setTimeout(() => {
             await modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
             return
         }
+        
+        if (modoUsuarios[remoteJid] === 'vozgrave') {
+    await modoVoz(sock, remoteJid, nome, text, modoUsuarios, message)
+    return
+}
 
         await sock.sendMessage(remoteJid, {
             text: `Olá, ${nome}! Tudo baum?\n\nMe chamo Wit, é um prazer te conhecer!🤝\n\nDigite */menu* para visualizar o meu menu, ok?😁`
