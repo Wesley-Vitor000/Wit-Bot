@@ -320,7 +320,9 @@ async function mostrarMenu(sock, remoteJid, nome) {
     const data = pegarDataAtual()
 
     await sock.sendMessage(remoteJid, {
-        text: `╭─〔 𝙒𝙄𝙏 𝘽𝙊𝙏 〕─╮
+        video: fs.readFileSync(path.join(__dirname, 'midia', 'wit-intro.mp4')),
+        gifPlayback: true,
+        caption: `╭─〔 𝙒𝙄𝙏 𝘽𝙊𝙏 〕─╮
 
 👑 Dono: Wesley
 ⚡ Status: Online
@@ -337,9 +339,9 @@ async function mostrarMenu(sock, remoteJid, nome) {
 ╭─〔 🎙️ 𝙑𝙊𝙕𝙀𝙎 〕─╮
 1 • Grave
 2 • Fina
-3 • Robô
+3 • Lenta
 4 • Eco
-5 • Rádio
+5 • Rapida
 ╰────────────────╯
 
 ╭─〔 ⚙️ 𝙎𝙄𝙎𝙏𝙀𝙈𝘼 〕─╮
