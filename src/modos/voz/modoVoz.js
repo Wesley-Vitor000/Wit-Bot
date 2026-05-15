@@ -1,15 +1,19 @@
-// modo voz grave bot wit
-
 const fs = require('fs')
 const path = require('path')
 const { exec } = require('child_process')
 const { downloadMediaMessage } = require('@whiskeysockets/baileys')
 
-// Essa função altera o áudio usando o FFmpeg
-// Aqui estamos criando o efeito de voz grave
-function converterVozGrave(caminhoEntrada, caminhoSaida) {
+const filtros = {
+  grave: 'asetrate=48000*0.75,aresample=48000,atempo=1.25',
+  fina: 'asetrate=48000*1.35,aresample=48000,atempo=0.90',
+  eco: 'aecho=0.8:0.9:700:0.3',
+  rapida: 'atempo=1.5',
+  lenta: 'atempo=0.75'
+}
+
+function alterarVoz(caminhoEntrada, caminhoSaida, filtro) {
   return new Promise((resolve, reject) => {
-    const comando = `ffmpeg -y -i "${caminhoEntrada}" -filter:a "asetrate=48000*0.75,aresample=48000,atempo=1.25" -c:a libopus "${caminhoSaida}"`
+    const comando = `ffmpeg -y -i "${caminhoEntrada}" -filter:a "${filtro}" -c:a libopus "${caminhoSaida}"`
     
     exec(comando, (erro) => {
       if (erro) {
@@ -22,15 +26,44 @@ function converterVozGrave(caminhoEntrada, caminhoSaida) {
   })
 }
 
-// Função principal do modo voz
 async function modoVoz(sock, remoteJid, nome, text, modoUsuarios, message) {
   const textoNormalizado = text.toLowerCase().trim()
   
   if (textoNormalizado === '4') {
-    modoUsuarios[remoteJid] = 'vozgrave'
+    modoUsuarios[remoteJid] = {
+      modo: 'voz',
+      efeito: null
+    }
     
     await sock.sendMessage(remoteJid, {
-      text: `Você escolheu o Modo Voz Grave, ${nome}! 🎙️\n\nAgora me envie um áudio e eu vou devolver ele com a voz mais grave 😎`
+      text: `🎙️ *Modo Voz ativado!*\n\nEscolha o efeito:\n\n1 - Voz grave 😈\n2 - Voz fina 🐤\n3 - Eco 🌌\n4 - Rápida ⚡\n5 - Lenta 🐢\n\nDigite o número do efeito.`
+    })
+    
+    return
+  }
+  
+  if (modoUsuarios[remoteJid]?.modo === 'voz' && !modoUsuarios[remoteJid].efeito) {
+    const opcoes = {
+      '1': 'grave',
+      '2': 'fina',
+      '3': 'eco',
+      '4': 'rapida',
+      '5': 'lenta'
+    }
+    
+    const efeitoEscolhido = opcoes[textoNormalizado]
+    
+    if (!efeitoEscolhido) {
+      await sock.sendMessage(remoteJid, {
+        text: `Escolha uma opção válida:\n\n1 - Grave\n2 - Fina\n3 - Eco\n4 - Rápida\n5 - Lenta`
+      })
+      return
+    }
+    
+    modoUsuarios[remoteJid].efeito = efeitoEscolhido
+    
+    await sock.sendMessage(remoteJid, {
+      text: `Perfeito, ${nome}! 🎙️\n\nAgora me envie um áudio que eu vou aplicar o efeito: *${efeitoEscolhido}*.`
     })
     
     return
@@ -40,13 +73,15 @@ async function modoVoz(sock, remoteJid, nome, text, modoUsuarios, message) {
   
   if (!temAudio) {
     await sock.sendMessage(remoteJid, {
-      text: `Me manda um áudio, ${nome}, que eu transformo ele em voz grave 🎙️`
+      text: `Me manda um áudio, ${nome}, que eu altero a voz pra você 🎙️`
     })
-    
     return
   }
   
   try {
+    const efeitoEscolhido = modoUsuarios[remoteJid]?.efeito || 'grave'
+    const filtro = filtros[efeitoEscolhido]
+    
     const pastaRecebidos = path.join(__dirname, 'audios-recebidos')
     const pastaProntos = path.join(__dirname, 'audios-prontos')
     
@@ -56,7 +91,7 @@ async function modoVoz(sock, remoteJid, nome, text, modoUsuarios, message) {
     const nomeArquivo = Date.now()
     
     const caminhoEntrada = path.join(pastaRecebidos, `${nomeArquivo}.ogg`)
-    const caminhoSaida = path.join(pastaProntos, `${nomeArquivo}-grave.ogg`)
+    const caminhoSaida = path.join(pastaProntos, `${nomeArquivo}-${efeitoEscolhido}.ogg`)
     
     const buffer = await downloadMediaMessage(message, 'buffer', {}, {
       logger: console,
@@ -65,7 +100,7 @@ async function modoVoz(sock, remoteJid, nome, text, modoUsuarios, message) {
     
     fs.writeFileSync(caminhoEntrada, buffer)
     
-    await converterVozGrave(caminhoEntrada, caminhoSaida)
+    await alterarVoz(caminhoEntrada, caminhoSaida, filtro)
     
     await sock.sendMessage(remoteJid, {
       audio: { url: caminhoSaida },
