@@ -408,12 +408,12 @@ async function startBot() {
         
         const nome = message.pushName || 'Desconhecido'
         
-        const text =
-            message.message.conversation ||
-            message.message.extendedTextMessage?.text ||
-            ''
+        const temImagem = message.message?.imageMessage
+        const temVideo = message.message?.videoMessage
+        const temAudio = message.message?.audioMessage
+        
         // Impede de receber mensagem vazia
-        if (!text.trim() && !message.message.imageMessage && !message.message.videoMessage) {
+        if (!text.trim() && !temImagem && !temVideo && !temAudio) {
             console.log('⚠️ Mensagem vazia/evento sem conteúdo ignorado.')
             return
         }
