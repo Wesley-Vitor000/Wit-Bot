@@ -40,18 +40,23 @@ app.use(express.json())
 function atualizarStatus(novoStatus, evento) {
     statusBot = novoStatus
     ultimoEvento = evento
-    ultimaAtualizacao = new Date().toLocaleString('pt-BR')
+    ultimaAtualizacao = new Date().toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo'
+    })
 }
 
 function pegarHoraAtual() {
     return new Date().toLocaleTimeString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
         hour: '2-digit',
         minute: '2-digit'
     })
 }
 
 function pegarDataAtual() {
-    return new Date().toLocaleDateString('pt-BR')
+    return new Date().toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo'
+    })
 }
 
 function gerarPagina(conteudoPrincipal) {
