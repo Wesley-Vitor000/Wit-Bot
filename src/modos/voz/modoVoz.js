@@ -36,7 +36,7 @@ async function modoVoz(sock, remoteJid, nome, text, modoUsuarios, message) {
     }
     
     await sock.sendMessage(remoteJid, {
-      text: `🎙️ *Modo Voz ativado!*\n\nEscolha o efeito:\n\n1 - Voz grave 😈\n2 - Voz fina 🐤\n3 - Eco 🌌\n4 - Rápida ⚡\n5 - Lenta 🐢\n\nDigite o número do efeito.`
+      text: msg.voz(nome)
     })
     
     return

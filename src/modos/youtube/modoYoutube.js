@@ -43,18 +43,7 @@ async function modoYoutube(sock, remoteJid, nome, text, modoUsuarios) {
         modoUsuarios[remoteJid] = 'youtube'
 
         await sock.sendMessage(remoteJid, {
-            text: `Você escolheu o Modo Youtube, ${nome}! 🎥
-
-Nesse modo, você pode:
-
-• Mandar links do YouTube
-OU
-• Digitar o nome do vídeo
-
-Exemplo:
-Nascer do Sol no YouTube
-
-E eu vou pesquisar e baixar pra você 😎`
+            text: msg.youtube(nome)
         })
 
         return

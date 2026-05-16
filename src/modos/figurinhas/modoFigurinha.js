@@ -3,7 +3,7 @@ const path = require('path')
 const sharp = require('sharp')
 const { exec } = require('child_process') // Serve para executar comandos do terminal a partir do código JavaScript
 const { downloadMediaMessage } = require('@whiskeysockets/baileys') // Serve para baixar os arquivos de mídia que os usuários enviam para o bot, como imagens e vídeos, para que o bot possa processar esses arquivos e transformá-los em figurinhas.
-
+const estilo = require('../../utils/mensagensWit')
 
 function converterVideoParaWebp(caminhoVideo, caminhoFigurinha) {
     return new Promise((resolve, reject) => { // Essa função é responsável por converter um vídeo em formato MP4 para o formato WebP, que é o formato de figurinhas do WhatsApp. Ela usa o FFmpeg para fazer a conversão, e retorna uma Promise que resolve quando a conversão é concluída, ou rejeita se ocorrer algum erro durante o processo.
@@ -28,7 +28,7 @@ async function modoFigurinha(sock, remoteJid, nome, text, modoUsuarios, message)
         modoUsuarios[remoteJid] = 'figurinha'
         
         await sock.sendMessage(remoteJid, {
-            text: `Você escolheu o Modo Figurinhas, ${nome}! 🖼️\n\nNesse modo, você pode me enviar imagens ou vídeos curtos, e eu vou transformar eles em figurinhas para você usar no WhatsApp! 😎\n\nÉ só me enviar a imagem ou vídeo que você quer transformar em figurinha, e eu faço o resto! 🚀`
+            text: estilo.figurinha(nome)
         })
         return
     }

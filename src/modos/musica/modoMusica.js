@@ -6,6 +6,7 @@ const limparLinkYoutube = require('../../utils/limparLinkYoutube')
 const pegarInfoYoutube = require('../../utils/pegarInfoYoutube')
 const pesquisarYoutubeMusica = require('../../utils/pesquisarYoutubeMusicas')
 const caminhoCookies = path.join('/tmp', 'cookies.txt')
+const msg = require('../../utils/mensagensWit')
 
 function baixarMusicaYoutube(link, saidaMusica) {
     return new Promise((resolve, reject) => {
@@ -39,18 +40,7 @@ async function modoMusica(sock, remoteJid, nome, text, modoUsuarios) {
         modoUsuarios[remoteJid] = 'musica'
 
         await sock.sendMessage(remoteJid, {
-            text: `Você escolheu o Modo Música, ${nome}! 🎵
-
-Nesse modo, você pode:
-
-• Mandar links do YouTube
-OU
-• Digitar o nome do Música
-
-Exemplo:
-Céu - Sofia Cardoso
-
-E eu vou pesquisar e baixar pra você 😎`
+            text: msg.musica(nome)
         })
 
         return
