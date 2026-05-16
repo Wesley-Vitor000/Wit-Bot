@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const { exec } = require('child_process')
 const { downloadMediaMessage } = require('@whiskeysockets/baileys')
-
+const msg = require('../../utils/mensagensWit')
 const filtros = {
   grave: 'asetrate=48000*0.75,aresample=48000,atempo=1.25',
   fina: 'asetrate=48000*1.35,aresample=48000,atempo=0.90',
