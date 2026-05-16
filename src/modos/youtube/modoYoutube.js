@@ -5,31 +5,74 @@ const msg = require('../../utils/mensagensWit')
 const limparLinkYoutube = require('../../utils/limparLinkYoutube')
 const pegarInfoYoutube = require('../../utils/pegarInfoYoutube')
 const pesquisarYoutube = require('../../utils/pesquisarYoutube')
+const { tentarEstrategias } = require('../../utils/witDownloaderEngine')
 
-function baixarVideoYoutube(link, saidaVideo) {
-    return new Promise((resolve, reject) => {
+async function baixarVideoYoutube(link, saidaVideo, caminhoVideo) {
+    const base = `python3 -m yt_dlp --no-playlist --force-overwrites`
 
-        const caminhoCookies = path.join('/tmp', 'cookies.txt')
+    const formatoSimples = `-f "best[height<=360][ext=mp4]/best[height<=360]/best"`
+    const formatoSeparado = `-f "bestvideo[height<=360][ext=mp4]+bestaudio[ext=m4a]/best[height<=360][ext=mp4]/best"`
 
-        if (process.env.YOUTUBE_COOKIES) {
-            fs.writeFileSync(caminhoCookies, process.env.YOUTUBE_COOKIES)
+    const estrategias = [
+        {
+            nome: 'android mp4 simples',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=android" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'android creator',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=android_creator" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'android testsuite',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=android_testsuite" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'ios',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=ios" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'web',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=web" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'mweb',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=mweb" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'web embedded',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=web_embedded" ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'android separado',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=android" ${formatoSeparado} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'ios separado',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} --extractor-args "youtube:player_client=ios" ${formatoSeparado} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
+        },
+        {
+            nome: 'normal simples',
+            arquivoFinal: caminhoVideo,
+            comando: `${base} ${formatoSimples} --merge-output-format mp4 -o "${saidaVideo}" "${link}"`
         }
+    ]
 
-        const comando = `python3 -m yt_dlp --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=android" --remote-components ejs:github --js-runtime deno -f "best[height<=360][ext=mp4]/best[height<=360]" --force-overwrites -o "${saidaVideo}" "${link}"`
+    const resultado = await tentarEstrategias(estrategias)
 
-        exec(comando, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Erro ao baixar o vídeo:', error)
-                reject(error)
-                return
-            }
+    if (!resultado.sucesso) {
+        throw new Error('Todas as estratégias de vídeo falharam')
+    }
 
-            console.log('STDOUT:', stdout)
-            console.log('STDERR:', stderr)
-
-            resolve(stdout)
-        })
-    })
+    return resultado
 }
 
 async function modoYoutube(sock, remoteJid, nome, text, modoUsuarios) {

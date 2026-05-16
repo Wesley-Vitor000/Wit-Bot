@@ -7,31 +7,58 @@ const pegarInfoYoutube = require('../../utils/pegarInfoYoutube')
 const pesquisarYoutubeMusica = require('../../utils/pesquisarYoutubeMusicas')
 const caminhoCookies = path.join('/tmp', 'cookies.txt')
 const msg = require('../../utils/mensagensWit')
+const { tentarEstrategias } = require('../../utils/witDownloaderEngine')
 
-function baixarMusicaYoutube(link, saidaMusica) {
-    return new Promise((resolve, reject) => {
+async function baixarMusicaYoutube(link, saidaMusica, caminhoMusica) {
+    const base = `python3 -m yt_dlp --no-playlist --force-overwrites -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5`
 
-        const caminhoCookies = path.join('/tmp', 'cookies.txt')
-
-        if (process.env.YOUTUBE_COOKIES) {
-            fs.writeFileSync(caminhoCookies, process.env.YOUTUBE_COOKIES)
+    const estrategias = [
+        {
+            nome: 'android music',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=android_music" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'android',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=android" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'android creator',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=android_creator" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'ios',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=ios" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'web',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=web" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'mweb',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} --extractor-args "youtube:player_client=mweb" -o "${saidaMusica}" "${link}"`
+        },
+        {
+            nome: 'normal',
+            arquivoFinal: caminhoMusica,
+            comando: `${base} -o "${saidaMusica}" "${link}"`
         }
+    ]
 
-        const comando = `python3 -m yt_dlp --cookies "${caminhoCookies}" --extractor-args "youtube:player_client=android_music,android" --no-playlist --js-runtime node -f "bestaudio/best" -x --audio-format mp3 --audio-quality 5 --force-overwrites -o "${saidaMusica}" "${link}"`
+    const resultado = await tentarEstrategias(estrategias)
 
-        exec(comando, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Erro ao baixar música:', error)
-                reject(error)
-                return
-            }
+    if (!resultado.sucesso) {
+        throw new Error('Todas as estratégias de música falharam')
+    }
 
-            console.log('STDOUT:', stdout)
-            console.log('STDERR:', stderr)
-            resolve(stdout)
-        })
-    })
+    return resultado
 }
+
 
 async function modoMusica(sock, remoteJid, nome, text, modoUsuarios) {
     const textoNormalizado = text.toLowerCase().trim()
