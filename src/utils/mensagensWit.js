@@ -31,9 +31,9 @@ GIF ou vídeo curto.
 
 1 • Grave 😈
 2 • Fina 🐤
-3 • Lenta 🐢
-4 • Eco 🌌
-5 • Rápida ⚡
+3 • Eco 🌌
+4 • Rápida ⚡
+5 • Lenta 🐢
 
 🎧 Escolha um efeito
 e envie um áudio.
