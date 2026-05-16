@@ -365,7 +365,7 @@ async function startBot() {
     botRodando = true
     atualizarStatus('iniciando', 'Inicializando conexão com WhatsApp')
 
-    const { state, saveCreds } = await useMultiFileAuthState('auth')
+    const { state, saveCreds } = await useMultiFileAuthState('/app/auth')
 
     const { version } = await fetchLatestBaileysVersion()
 
